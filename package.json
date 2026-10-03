@@ -1,30 +1,40 @@
 {
-    "name": "bark-worker",
-    "description": "Bark Server on Cloudflare Worker",
-    "type": "module",
-    "cloudflare": {
-        "label": "Bark Server",
-        "products": [
-            "Workers",
-            "D1"
-        ],
-        "categories": [],
-        "icon_urls": [],
-        "docs_url": "https://developers.cloudflare.com/workers/",
-        "preview_image_url": "https://github.com/cwxiaos/bark-worker/blob/master/doc/images/bark.jpeg",
-        "dash": true
-    },
-    "devDependencies": {
-        "wrangler": "^4.84.1"
-    },
-    "scripts": {
-        "test": "node --test",
-        "cf-typegen": "wrangler types",
-        "db:migrate": "wrangler d1 migrations apply database --local",
-        "db:migrate:remote": "wrangler d1 migrations apply database --remote",
-        "deploy": "wrangler deploy",
-        "dev": "wrangler dev",
-        "predeploy": "npm run db:migrate:remote",
-        "preview": "wrangler dev"
+  "name": "bark-worker",
+  "description": "Bark Server on Cloudflare Worker",
+  "type": "module",
+  "cloudflare": {
+    "label": "Bark Server",
+    "products": [
+      "Workers",
+      "D1"
+    ],
+    "categories": [],
+    "icon_urls": [],
+    "docs_url": "https://developers.cloudflare.com/workers/",
+    "preview_image_url": "https://github.com/cwxiaos/bark-worker/blob/master/doc/images/bark.jpeg",
+    "dash": true,
+    "bindings": {
+      "database": {
+        "description": "Bark 设备注册数据使用的 D1 数据库。迁移部署时保留现有 database-bark。"
+      },
+      "APNS_PRIVATE_KEY": {
+        "description": "Bark APNs 签名私钥（PEM 格式），保存为 Worker secret，不要提交到 GitHub。"
+      },
+      "ROOT_PATH": {
+        "description": "以 / 开头的随机访问路径。生成随机令牌后拼接 /；迁移部署时沿用当前值以保留 Bark 服务器地址。"
+      }
     }
+  },
+  "devDependencies": {
+    "wrangler": "^4.84.1"
+  },
+  "scripts": {
+    "test": "node --test",
+    "cf-typegen": "wrangler types",
+    "db:migrate": "wrangler d1 migrations apply database --local",
+    "db:migrate:remote": "wrangler d1 migrations apply database --remote",
+    "deploy": "npm run db:migrate:remote && wrangler deploy",
+    "dev": "wrangler dev",
+    "preview": "wrangler dev"
+  }
 }

@@ -7,3 +7,5 @@ node_modules
 .env
 .env.*
 verify-url.txt
+!.dev.vars.example
+!.env.example

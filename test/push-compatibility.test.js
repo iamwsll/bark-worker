@@ -59,7 +59,7 @@ async function push(payload) {
 
     try {
         const { context, settle } = createWorkerContext()
-        const response = await worker.fetch(new Request('https://worker.example/push', {
+        const response = await worker.fetch(new Request('https://worker.example/test-access-token/push', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify(payload),
@@ -67,7 +67,7 @@ async function push(payload) {
             database: new FakeD1Database(),
             ALLOW_NEW_DEVICE: 'false',
             ALLOW_QUERY_NUMS: 'false',
-            ROOT_PATH: '/',
+            ROOT_PATH: '/test-access-token',
         }, context)
 
         await settle()
@@ -83,11 +83,11 @@ async function push(payload) {
 
 test('GET /ping remains compatible with the client health check', async () => {
     const { context, settle } = createWorkerContext()
-    const response = await worker.fetch(new Request('https://worker.example/ping'), {
+    const response = await worker.fetch(new Request('https://worker.example/test-access-token/ping'), {
         database: new FakeD1Database(),
         ALLOW_NEW_DEVICE: 'false',
         ALLOW_QUERY_NUMS: 'false',
-        ROOT_PATH: '/',
+        ROOT_PATH: '/test-access-token',
     }, context)
 
     await settle()

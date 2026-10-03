@@ -1,0 +1,4 @@
+# Worker secrets requested by the Deploy to Cloudflare setup form.
+# Supply real values in Cloudflare; never commit them to this file.
+APNS_PRIVATE_KEY=
+ROOT_PATH=

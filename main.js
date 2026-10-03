@@ -7,7 +7,10 @@ export default {
 async function handleRequest(request, env, ctx) {
     const allowNewDevice = env.ALLOW_NEW_DEVICE !== undefined ? (env.ALLOW_NEW_DEVICE === 'false' ? false : Boolean(env.ALLOW_NEW_DEVICE)) : true
     const allowQueryNums = env.ALLOW_QUERY_NUMS !== undefined ? (env.ALLOW_QUERY_NUMS === 'false' ? false : Boolean(env.ALLOW_QUERY_NUMS)) : true
-    const rootPath = (env.ROOT_PATH || '/').replace(/\/+$/, '') || '/'
+    const rootPath = (env.ROOT_PATH || '').replace(/\/+$/, '')
+    if (!rootPath || !rootPath.startsWith('/')) {
+        return new Response('ROOT_PATH is not configured', { status: 503 })
+    }
     const { searchParams, pathname } = new URL(request.url)
     if (rootPath !== '/' && pathname !== rootPath && !pathname.startsWith(rootPath + '/')) {
         return new Response('Not Found', { status: 404 })

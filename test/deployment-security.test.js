@@ -3,6 +3,13 @@ import test from 'node:test'
 import { generateKeyPairSync } from 'node:crypto'
 import worker from '../main.js'
 
+test('missing or root-only access configuration rejects all requests before touching the database', async () => {
+    for (const ROOT_PATH of [undefined, '', '/', '///', 'plain-token']) {
+        const response = await worker.fetch(new Request('https://worker.example/register?devicetoken=abcd'), { ROOT_PATH }, context())
+        assert.equal(response.status, 503)
+    }
+})
+
 function makeEnv() {
     return {
         ROOT_PATH: '/test-access-token',

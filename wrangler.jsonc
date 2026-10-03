@@ -19,6 +19,6 @@
   "vars": {
     "ALLOW_NEW_DEVICE": "true",
     "ALLOW_QUERY_NUMS": "true"
-  }
+  },
+  "preview_urls": false
 }
-

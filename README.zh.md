@@ -1,3 +1,5 @@
+> 本 fork 保存已部署的 D1 版本。APNs 签名密钥和访问路径使用 Cloudflare 加密变量；部署前请阅读[本 fork 部署说明](README-deployment.md)。
+
 <p align="center">
     <h1 align="center">Bark-Worker</h1>
 </p>

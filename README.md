@@ -1,3 +1,5 @@
+> This fork contains the deployed D1 variant. The APNs signing key and access path are configured as Cloudflare secrets; see [Deployment notes](README-deployment.md) before deploying.
+
 <p align="center">
     <h1 align="center">Bark-Worker</h1>
 </p>

@@ -7,15 +7,18 @@ export default {
 async function handleRequest(request, env, ctx) {
     const allowNewDevice = env.ALLOW_NEW_DEVICE !== undefined ? (env.ALLOW_NEW_DEVICE === 'false' ? false : Boolean(env.ALLOW_NEW_DEVICE)) : true
     const allowQueryNums = env.ALLOW_QUERY_NUMS !== undefined ? (env.ALLOW_QUERY_NUMS === 'false' ? false : Boolean(env.ALLOW_QUERY_NUMS)) : true
-    const rootPath = env.ROOT_PATH || '/'
+    const rootPath = (env.ROOT_PATH || '/').replace(/\/+$/, '') || '/'
+    const { searchParams, pathname } = new URL(request.url)
+    if (rootPath !== '/' && pathname !== rootPath && !pathname.startsWith(rootPath + '/')) {
+        return new Response('Not Found', { status: 404 })
+    }
     const basicAuth = env.BASIC_AUTH
 
     const db = new Database(env)
     ctx.waitUntil(db.cleanupExpiredSessions())
 
-    const { searchParams, pathname } = new URL(request.url)
-    const handler = new Handler(db, { allowNewDevice, allowQueryNums })
-    const realPathname = pathname.replace((new RegExp('^' + rootPath.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'))), '/')
+    const handler = new Handler(db, { allowNewDevice, allowQueryNums, apnsPrivateKey: env.APNS_PRIVATE_KEY })
+    const realPathname = rootPath === '/' ? pathname : (pathname.slice(rootPath.length) || '/')
 
     switch (realPathname) {
         case '/register': {
@@ -506,7 +509,7 @@ class Handler {
                 'apns-push-type': (_delete) ? 'background' : 'alert',
             }
 
-            const apns = new APNs(db)
+            const apns = new APNs(db, options.apnsPrivateKey)
             const response = await apns.push(deviceToken, headers, aps)
 
             if (response.status === 200) {
@@ -852,16 +855,10 @@ class Handler {
 }
 
 class APNs {
-    constructor(db) {
+    constructor(db, privateKeyPem) {
         const generateAuthToken = async () => {
-            const TOKEN_KEY = `
-            -----BEGIN PRIVATE KEY-----
-            MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg4vtC3g5L5HgKGJ2+
-            T1eA0tOivREvEAY2g+juRXJkYL2gCgYIKoZIzj0DAQehRANCAASmOs3JkSyoGEWZ
-            sUGxFs/4pw1rIlSV2IC19M8u3G5kq36upOwyFWj9Gi3Ejc9d3sC7+SHRqXrEAJow
-            8/7tRpV+
-            -----END PRIVATE KEY-----
-            `
+            const TOKEN_KEY = privateKeyPem
+            if (!TOKEN_KEY) throw new Error('APNS_PRIVATE_KEY is not configured')
 
             // Parse private key
             const privateKeyPEM = TOKEN_KEY.replace('-----BEGIN PRIVATE KEY-----', '').replace('-----END PRIVATE KEY-----', '').replace(/\s/g, '')
